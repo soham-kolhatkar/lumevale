@@ -193,6 +193,22 @@
       every(12, 12, () => chord(prog[i++ % prog.length], 17, 0.024, wet, { type: 'sine', cutoff: 1200, attack: 5 }), true);
       every(6, 14, () => bell(mtof(U.choice([62, 66, 69, 74])), 0.015, wet, 5));
     },
+    chimes(out, wet, every) {
+      // quiet room tone under a slow pad; the scene rings a bell per pendulum through the chime cue
+      noise(brownBuf, out, { type: 'lowpass', freq: 320, gain: 0.07 });
+      const prog = [[48, 55, 62, 64], [45, 52, 55, 60], [41, 48, 57, 64], [43, 50, 55, 64]];
+      let i = 0;
+      every(14, 14, () => chord(prog[i++ % prog.length], 19, 0.012, wet, { type: 'sine', cutoff: 900, attack: 6 }), true);
+      return {
+        chime(midi, gain = 0.03, pan = 0, delay = 0) {
+          const p = ac.createStereoPanner();
+          p.pan.value = U.clamp(pan, -1, 1);
+          p.connect(wet);
+          bell(mtof(midi), gain, p, 1.4, ac.currentTime + delay);
+          setTimeout(() => p.disconnect(), (delay + 1.8) * 1000);
+        },
+      };
+    },
     symbiote(out, wet, every) {
       // rain on the rooftops and a slow, wet, breathing growl
       const hiss = noise(whiteBuf, out, { type: 'bandpass', freq: 2600, q: 0.3, gain: 0.16 });

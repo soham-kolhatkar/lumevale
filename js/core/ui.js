@@ -12,7 +12,7 @@
         { key: 'sound', label: 'Ambient sound', hint: 'Generated live, matched to each scene', type: 'toggle' },
         { key: 'volume', label: 'Volume', type: 'range', min: 0, max: 1, step: 0.01, parent: 'sound' },
         { key: 'interaction', label: 'Mouse interaction', hint: 'Scenes react to your cursor and clicks', type: 'toggle' },
-        { key: 'timeOfDay', label: 'Time-of-day lighting', hint: 'Light follows your local time (rain, koi, astronaut)', type: 'toggle' },
+        { key: 'timeOfDay', label: 'Time-of-day lighting', hint: 'Light follows your local time (rain, koi, astronaut, pendulum)', type: 'toggle' },
         { key: 'grain', label: 'Film grain', type: 'toggle' },
         { key: 'vignette', label: 'Vignette', type: 'toggle' },
       ],

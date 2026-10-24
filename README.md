@@ -6,7 +6,7 @@ A full-screen animated wallpaper that runs in the browser. Plain HTML/JS, no bui
 
 Double-click `index.html` (or open it in Chrome / Edge / Firefox), then press **F** or double-click for fullscreen.
 
-Open a specific scene directly: `index.html?scene=koi` (ids: `rain`, `koi`, `jelly`, `astro`, `flow`, `venom`).
+Open a specific scene directly: `index.html?scene=koi` (ids: `rain`, `koi`, `jelly`, `astro`, `flow`, `venom`, `pendulum`).
 Preview time-of-day lighting at any hour: `index.html?hour=19`.
 
 ## Scenes
@@ -19,6 +19,7 @@ Preview time-of-day lighting at any hour: `index.html?hour=19`.
 | 4 | Lonely Astronaut | Flat illustration | Parallax, the astronaut watches the cursor; click for a shooting star |
 | 5 | Silk Flow | Abstract shader (WebGL2) | Cursor stirs the silk; click for ripples |
 | 6 | Venom | Symbiote takeover (WebGL2) | Goo creeps across the window and swallows it; the cursor is a light it shrinks from (hold still and it creeps back), click for a sonic pulse that blasts it away |
+| 7 | Pendulum Wave | Satisfying · soft 3D | A row of pendulums drifts into snakes and braids and lines up again every cycle, ringing a note per swing; grab a ball and let go, swipe across the strings to pluck them, click empty space to gather every ball and release them together |
 
 ## Keys
 
@@ -31,12 +32,14 @@ Every scene has its own options, for example the cat, room colours, rain and pix
 water, koi varieties and falling petals or maple leaves in Koi Pond; glow colours and density in Deep Ocean;
 sky, planet and spacesuit in Lonely Astronaut; palette (including custom colours), pattern (silk, marble, smoke,
 waves, aurora), speed, zoom, sheen and grain in Silk Flow; symbiote (Venom, Carnage, Anti-Venom), what's behind the
-glass (neon city, moonlit rooftops, plain dark), creep speed, splatter, rain and lightning in Venom. The scene picker shows live thumbnails rendered from
+glass (neon city, moonlit rooftops, plain dark), creep speed, splatter, rain and lightning in Venom; room (studio or midnight glow), ball colours, number of pendulums,
+seconds until they line up, swing, motion trails, a traced wave line and chimes in Pendulum Wave. The scene picker shows live thumbnails rendered from
 each scene with your options applied.
 
 Each scene also themes the widgets (fonts, colours, card style) and the cursor: a pixel arrow in the rain,
 a ripple ring over the pond, a glowing orb in the ocean, a star with a sparkle trail in space, a soft ring on silk,
-a little torch for Venom (with a dripping clock, and goo that drips down any widget it crawls over).
+a little torch for Venom (with a dripping clock, and goo that drips down any widget it crawls over), a soft ring
+with frosted cards in Pendulum Wave.
 
 ## Widgets (grid button / `W`)
 
@@ -56,7 +59,7 @@ Create `js/scenes/my-scene.js` and add a `<script>` tag for it in `index.html`:
 ```js
 Lumevale.registerScene({
   id: 'mine', name: 'My Scene', style: 'Whatever', swatch: ['#000', '#fff'],
-  ambience: 'pad',            // rain | water | deep | space | pad | symbiote
+  ambience: 'pad',            // rain | water | deep | space | pad | symbiote | chimes
   type: '2d',                 // or 'webgl' (WebGL2 context)
   // pixelHeight: 216,        // optional: crisp pixel-art rendering (number or (opts) => number)
   options: [                  // shown in the Customize panel, saved per scene
@@ -79,7 +82,8 @@ Lumevale.registerScene({
 
 `input` gives the pointer (`x`, `y`, smoothed `sx`/`sy`, parallax `px`/`py` in -1..1, `speed`, `active`).
 `env.mood(defaultDay, defaultDusk)` returns the lighting to use, following local time when that setting is on.
-`Lumevale.audio.cue(name)` plays a one-shot sound from the current ambience (`thunder` and `pulse` for `symbiote`);
+`Lumevale.audio.cue(name)` plays a one-shot sound from the current ambience (`thunder` and `pulse` for `symbiote`,
+`chime(midi, gain, pan, delay)` for `chimes`);
 it does nothing while sound is off. Skip it when `create` receives `thumbnail: true`.
 
 ## Adding a widget

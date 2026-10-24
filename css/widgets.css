@@ -242,6 +242,8 @@ body[data-scene="jelly"] .w-title, body[data-scene="jelly"] .cd-num, body[data-s
 body[data-scene="astro"] .widget.card { backdrop-filter: none; -webkit-backdrop-filter: none; }
 body[data-scene="astro"] .quote-text { font-family: var(--w-font); font-style: normal; font-weight: 400; }
 body[data-scene="venom"] .quote-text { font-family: var(--w-font); font-style: normal; }
+body[data-scene="pendulum"] .quote-text { font-family: var(--w-font); font-style: normal; }
+body[data-scene="pendulum"] #toast { color: var(--w-text); text-shadow: var(--w-tshadow); }
 /* Venom: the scene sets --goo (0..1) on each widget as the symbiote crawls over it. Cards darken and
    goo hangs off their top edge in drips that lengthen as it covers more, behind the text so it stays readable. */
 body[data-scene="venom"] .widget.card { background: color-mix(in srgb, var(--w-card), #000 calc(var(--goo, 0) * 45%)); }

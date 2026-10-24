@@ -129,7 +129,8 @@
   }
 
   // ---------- Ambiences ----------
-  // Each builder gets (out, wet, every) and returns nothing; `every` schedules random events.
+  // Each builder gets (out, wet, every); `every` schedules random events. A builder may return
+  // one-shot cues ({ name(...args) }) that its scene triggers through W.audio.cue(name).
   const builders = {
     rain(out, wet, every) {
       const hiss = noise(whiteBuf, out, { type: 'bandpass', freq: 2400, q: 0.35, gain: 0.22 });
@@ -192,6 +193,86 @@
       every(12, 12, () => chord(prog[i++ % prog.length], 17, 0.024, wet, { type: 'sine', cutoff: 1200, attack: 5 }), true);
       every(6, 14, () => bell(mtof(U.choice([62, 66, 69, 74])), 0.015, wet, 5));
     },
+    symbiote(out, wet, every) {
+      // rain on the rooftops and a slow, wet, breathing growl
+      const hiss = noise(whiteBuf, out, { type: 'bandpass', freq: 2600, q: 0.3, gain: 0.16 });
+      lfo(hiss.gain.gain, 0.06, 0.04);
+      noise(brownBuf, out, { type: 'lowpass', freq: 240, gain: 0.45 });
+      const f = ac.createBiquadFilter();
+      f.type = 'lowpass';
+      f.frequency.value = 200;
+      f.Q.value = 4;
+      const breath = ac.createGain();
+      breath.gain.value = 0.035;
+      [43.6, 44.1, 87.5].forEach((fr) => {
+        const o = ac.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.value = fr;
+        o.connect(f);
+        o.start();
+        track(o);
+      });
+      f.connect(breath).connect(out);
+      lfo(breath.gain, 0.13, 0.028);
+      lfo(f.frequency, 0.13, 80);
+      every(9, 20, () => bell(mtof(U.choice([38, 41, 44])), 0.02, wet, 6));
+      return {
+        thunder(delay = 1) {
+          const t = ac.currentTime + delay;
+          const crack = noise(whiteBuf, out, { type: 'lowpass', freq: 2400, gain: 0 });
+          crack.gain.gain.setValueAtTime(0, t);
+          crack.gain.gain.linearRampToValueAtTime(0.35, t + 0.02);
+          crack.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+          crack.src.stop(t + 0.6);
+          const rumble = noise(brownBuf, wet, { type: 'lowpass', freq: 600, gain: 0 });
+          rumble.filter.frequency.setValueAtTime(700, t);
+          rumble.filter.frequency.exponentialRampToValueAtTime(110, t + 4);
+          rumble.gain.gain.setValueAtTime(0, t);
+          rumble.gain.gain.linearRampToValueAtTime(0.9, t + 0.15);
+          rumble.gain.gain.setTargetAtTime(0.5, t + 0.6, 0.3);
+          rumble.gain.gain.setTargetAtTime(0, t + 1.6, 1);
+          rumble.src.stop(t + 6);
+        },
+        // sonic blast: a rising ringing tone, the symbiote's shriek, and a wet splat
+        pulse() {
+          const t = ac.currentTime;
+          const ring = ac.createOscillator(), trem = ac.createOscillator();
+          const tg = ac.createGain(), tremDepth = ac.createGain(), env = ac.createGain();
+          ring.frequency.setValueAtTime(1500, t);
+          ring.frequency.exponentialRampToValueAtTime(3400, t + 0.45);
+          trem.frequency.value = 36;
+          tg.gain.value = 0.5;
+          tremDepth.gain.value = 0.5;
+          trem.connect(tremDepth).connect(tg.gain);
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.exponentialRampToValueAtTime(0.05, t + 0.02);
+          env.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+          ring.connect(tg).connect(env);
+          env.connect(out);
+          env.connect(wet);
+          [ring, trem].forEach((o) => { o.start(t); o.stop(t + 0.75); });
+          const shriek = ac.createOscillator(), bp = ac.createBiquadFilter(), sg = ac.createGain();
+          shriek.type = 'sawtooth';
+          shriek.frequency.setValueAtTime(520, t + 0.05);
+          shriek.frequency.exponentialRampToValueAtTime(1300, t + 0.35);
+          shriek.frequency.exponentialRampToValueAtTime(700, t + 0.7);
+          bp.type = 'bandpass';
+          bp.frequency.value = 1400;
+          bp.Q.value = 2;
+          sg.gain.setValueAtTime(0.0001, t);
+          sg.gain.exponentialRampToValueAtTime(0.04, t + 0.1);
+          sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.75);
+          shriek.connect(bp).connect(sg).connect(wet);
+          shriek.start(t);
+          shriek.stop(t + 0.8);
+          const splat = noise(brownBuf, out, { type: 'lowpass', freq: 500, gain: 0 });
+          splat.gain.gain.setValueAtTime(0, t);
+          splat.gain.gain.linearRampToValueAtTime(0.5, t + 0.01);
+          splat.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+          splat.src.stop(t + 0.35);
+        },
+      };
+    },
   };
 
   function start(name) {
@@ -217,10 +298,11 @@
       timers.add(id);
     }
     const nodes = (tracked = []);
-    build(out, wet, every);
+    const cues = build(out, wet, every) || {};
     tracked = null;
     return {
       name,
+      cues,
       stop() {
         alive = false;
         timers.forEach(clearTimeout);
@@ -274,6 +356,11 @@
       sync();
     },
     blocked: () => S.get('sound') && (!ac || ac.state !== 'running'),
+    // One-shot sound from the current ambience (e.g. a sonic pulse); silent when sound is off.
+    cue(name, ...args) {
+      if (!current || !S.get('sound') || ac.state !== 'running' || !current.cues[name]) return;
+      try { current.cues[name](...args); } catch (e) { /* ignore */ }
+    },
     // Gentle three-note chime for timers; plays even when ambient sound is off.
     chime() {
       if (!ensure()) return;

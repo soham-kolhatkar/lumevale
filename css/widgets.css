@@ -241,3 +241,24 @@ body[data-scene="koi"] .quote-text { font-family: var(--w-font); font-style: nor
 body[data-scene="jelly"] .w-title, body[data-scene="jelly"] .cd-num, body[data-scene="jelly"] .wx-ico { filter: drop-shadow(0 0 6px var(--w-accent)); }
 body[data-scene="astro"] .widget.card { backdrop-filter: none; -webkit-backdrop-filter: none; }
 body[data-scene="astro"] .quote-text { font-family: var(--w-font); font-style: normal; font-weight: 400; }
+body[data-scene="venom"] .quote-text { font-family: var(--w-font); font-style: normal; }
+/* Venom: the scene sets --goo (0..1) on each widget as the symbiote crawls over it. Cards darken and
+   goo hangs off their top edge in drips that lengthen as it covers more, behind the text so it stays readable. */
+body[data-scene="venom"] .widget.card { background: color-mix(in srgb, var(--w-card), #000 calc(var(--goo, 0) * 45%)); }
+body[data-scene="venom"]:not(.editing) .widget::before,
+body[data-scene="venom"]:not(.editing) .widget::after {
+  content: ""; position: absolute; left: -5px; right: -5px; top: -7px;
+  height: calc(var(--goo, 0) * 46px + 3px);
+  z-index: -1;
+  background: linear-gradient(90deg, transparent 18%, rgba(255, 255, 255, 0.16) 30%, transparent 42%), var(--goo-color, #07070c);
+  -webkit-mask: var(--goo-drips) var(--goo-shift, 0) 0 / 220px 100% repeat-x;
+  mask: var(--goo-drips) var(--goo-shift, 0) 0 / 220px 100% repeat-x;
+  opacity: clamp(0, calc(var(--goo, 0) * 4 - 0.4), 1);
+  pointer-events: none;
+  transition: height 0.5s ease, opacity 0.5s ease;
+}
+/* a thin rim of reflected light peeking out under the drips, so black goo still reads on a dark card */
+body[data-scene="venom"]:not(.editing) .widget::after { top: -5.5px; z-index: -2; background: var(--goo-rim, rgba(120, 135, 255, 0.55)); }
+body[data-scene="venom"] {
+  --goo-drips: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 60' preserveAspectRatio='none'%3E%3Cpath d='M0 0H220V11Q218.8 9 214.8 11C210.8 11 209.8 12.5 209.8 15V19.2A2.8 3.08 0 0 1 204.2 19.2V15C204.2 12.5 203.2 11 199.2 11Q196.2 14 192.2 11C188.2 11 187.2 12.5 187.2 15V27.8A5.2 5.72 0 0 1 176.8 27.8V15C176.8 12.5 175.8 11 171.8 11Q169.4 9 165.4 11C161.4 11 160.4 12.5 160.4 15V15.6A2.4 2.64 0 0 1 155.6 15.6V15C155.6 12.5 154.6 11 150.6 11Q141.8 14 137.8 11C133.8 11 132.8 12.5 132.8 15V39.2A4.8 5.28 0 0 1 123.2 39.2V15C123.2 12.5 122.2 11 118.2 11Q113 9 109 11C105 11 104 12.5 104 15V24A3 3.3 0 0 1 98 24V15C98 12.5 97 11 93 11Q85 14 81 11C77 11 76 12.5 76 15V50A6 6.6 0 0 1 64 50V15C64 12.5 63 11 59 11Q55.6 9 51.6 11C47.6 11 46.6 12.5 46.6 15V17.4A2.6 2.86 0 0 1 41.4 17.4V15C41.4 12.5 40.4 11 36.4 11Q29.2 14 25.2 11C21.2 11 20.2 12.5 20.2 15V31.8A4.2 4.62 0 0 1 11.8 31.8V15C11.8 12.5 10.8 11 6.8 11Q5 13 0 11Z'/%3E%3C/svg%3E");
+}

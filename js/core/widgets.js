@@ -195,5 +195,7 @@
     toggleEditing: () => setEditing(!W.editing),
     cfg: (id) => cfgOf(defs.find((d) => d.id === id)),
     set: (id, patch) => S.setWidget(id, patch),
+    // Mounted widget elements, for scenes that react to where widgets sit on screen.
+    elements: () => [...mounted.values()].map((m) => m.el),
   };
 })();

@@ -1,0 +1,243 @@
+/* Widgets. Every colour, font and card style comes from the active scene's theme (css variables set by theme.js). */
+:root {
+  --w-font: "Outfit", system-ui, sans-serif;
+  --w-clock-font: var(--w-font);
+  --w-clock-weight: 200;
+  --w-text: #fff;
+  --w-dim: rgba(255, 255, 255, 0.62);
+  --w-accent: #9fd8ff;
+  --w-card: rgba(16, 18, 28, 0.42);
+  --w-border: 1px solid rgba(255, 255, 255, 0.14);
+  --w-radius: 18px;
+  --w-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --w-blur: 18px;
+  --w-tshadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+  --w-field: rgba(255, 255, 255, 0.08);
+}
+
+#widgets { position: fixed; inset: 0; pointer-events: none; }
+
+.widget {
+  position: absolute;
+  transform-origin: 0 0;
+  transform: translateY(10px) scale(var(--s, 1));
+  opacity: 0;
+  color: var(--w-text);
+  font-family: var(--w-font);
+  text-shadow: var(--w-tshadow);
+  transition: opacity .9s ease, transform .9s var(--ease), color .8s ease;
+}
+.widget.shown { opacity: 1; transform: scale(var(--s, 1)); }
+.widget.w-live, .widget .w-live { pointer-events: auto; }
+.widget button { font-family: inherit; }
+
+.widget.card {
+  width: 270px;
+  padding: 16px 18px;
+  background: var(--w-card);
+  border: var(--w-border);
+  border-radius: var(--w-radius);
+  box-shadow: var(--w-shadow);
+  backdrop-filter: blur(var(--w-blur)) saturate(130%);
+  -webkit-backdrop-filter: blur(var(--w-blur)) saturate(130%);
+  text-shadow: none;
+}
+.w-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.w-title { font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--w-accent); }
+.w-meta { font-size: 12px; color: var(--w-dim); }
+.w-empty { font-size: 14px; color: var(--w-dim); }
+
+.widget input, .widget textarea {
+  font: inherit;
+  color: var(--w-text);
+  background: var(--w-field);
+  border: 1px solid transparent;
+  border-radius: calc(var(--w-radius) * 0.5);
+  outline: none;
+  transition: border-color .2s;
+}
+.widget input:focus, .widget textarea:focus { border-color: var(--w-accent); }
+.widget input::placeholder, .widget textarea::placeholder { color: var(--w-dim); }
+
+/* ---------- Arrange mode ---------- */
+body.editing .widget { pointer-events: auto; cursor: grab; }
+body.editing .widget * { pointer-events: none !important; }
+body.editing .widget::after {
+  content: attr(data-name);
+  position: absolute; left: -2px; top: -26px;
+  font: 500 11px/1 "Outfit", sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #10131c; background: var(--ui-accent); padding: 4px 8px; border-radius: 6px;
+  text-shadow: none;
+}
+body.editing .widget::before {
+  content: ""; position: absolute; inset: -8px;
+  border: 1.5px dashed color-mix(in srgb, var(--ui-accent) 80%, transparent);
+  border-radius: 12px;
+}
+body.editing .widget.dragging { cursor: grabbing; transition: opacity .9s ease; }
+body.editing .widget.dragging::before { border-style: solid; background: color-mix(in srgb, var(--ui-accent) 8%, transparent); }
+
+/* ---------- Clock ---------- */
+.w-clock .clock-time {
+  font-family: var(--w-clock-font);
+  font-weight: var(--w-clock-weight);
+  font-size: clamp(56px, 9vw, 140px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.w-clock .ampm { font-size: 0.28em; margin-left: 0.25em; letter-spacing: 0.08em; opacity: .7; }
+.w-clock .sec { font-size: 0.4em; margin-left: 0.15em; opacity: .55; }
+.w-clock .clock-date {
+  margin-top: 10px;
+  font-size: clamp(15px, 1.5vw, 22px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--w-dim);
+  white-space: nowrap;
+}
+
+/* ---------- Greeting ---------- */
+.w-greeting { text-align: center; width: min(640px, 80vw); }
+.greet-hello { font-family: var(--w-clock-font); font-weight: var(--w-clock-weight); font-size: clamp(30px, 4vw, 56px); }
+.greet-label { margin-top: 18px; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--w-dim); }
+.greet-input {
+  margin-top: 18px; width: 100%; text-align: center;
+  font-size: clamp(16px, 1.6vw, 22px) !important;
+  padding: 10px 14px; background: transparent !important;
+  border: 0 !important; border-bottom: 1.5px solid var(--w-dim) !important; border-radius: 0 !important;
+}
+.greet-input:focus { border-bottom-color: var(--w-accent) !important; }
+.greet-focus { display: inline-flex; align-items: center; gap: 12px; margin-top: 8px; font-size: clamp(18px, 2vw, 28px); }
+.greet-focus.done span { text-decoration: line-through; opacity: .6; }
+.greet-focus .clear { color: var(--w-dim); font-size: 22px; opacity: 0; transition: opacity .2s; }
+.greet-focus:hover .clear { opacity: 1; }
+
+/* shared check button (greeting + to-do) */
+.widget .check {
+  width: 18px; height: 18px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--w-dim);
+  transition: background .2s, border-color .2s;
+}
+.widget .done .check, .widget .greet-focus.done .check {
+  background: var(--w-accent); border-color: var(--w-accent);
+  box-shadow: inset 0 0 0 3px var(--w-card);
+}
+
+/* ---------- Quote ---------- */
+.w-quote { width: min(720px, 86vw); text-align: center; }
+.quote-text {
+  font-family: var(--w-quote-font, "Cormorant Garamond", Georgia, serif);
+  font-style: italic;
+  font-size: clamp(20px, 2.2vw, 32px);
+  line-height: 1.35;
+  transition: opacity 1.2s ease;
+}
+.quote-author { margin-top: 10px; font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--w-dim); transition: opacity 1.2s ease; }
+.w-quote.swap .quote-text, .w-quote.swap .quote-author { opacity: 0; }
+
+/* ---------- Breathing ---------- */
+.w-breath { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.breath-ring { width: 92px; height: 92px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--w-text) 30%, transparent); display: grid; place-items: center; }
+.breath-dot {
+  width: 92px; height: 92px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--w-accent) 60%, transparent), transparent 70%);
+  transform: scale(0.35);
+}
+.breath-label { font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--w-dim); min-width: 120px; text-align: center; }
+
+/* ---------- Calendar ---------- */
+.w-calendar { width: 250px; }
+.cal-head { font-size: 16px; margin-bottom: 10px; }
+.cal-head span { color: var(--w-dim); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.cal-grid span { height: 28px; display: grid; place-items: center; border-radius: 50%; }
+.cal-grid .dow { color: var(--w-accent); font-size: 11px; height: 22px; }
+.cal-grid .past { color: var(--w-dim); }
+.cal-grid .today { background: var(--w-accent); color: #10131c; font-weight: 600; }
+
+/* ---------- World clock ---------- */
+.w-worldclock { width: 250px; padding-top: 10px; padding-bottom: 10px; }
+.wc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.wc-row + .wc-row { border-top: 1px solid color-mix(in srgb, var(--w-text) 12%, transparent); }
+.wc-city { font-size: 15px; }
+.wc-rel { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--w-dim); margin-top: 2px; }
+.wc-time { font-size: 22px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Countdown ---------- */
+.w-countdown { width: auto; min-width: 180px; text-align: center; }
+.cd-num { font-family: var(--w-clock-font); font-weight: var(--w-clock-weight); font-size: 56px; line-height: 1; color: var(--w-accent); }
+.cd-label { margin-top: 6px; font-size: 14px; }
+.cd-sub { margin-top: 4px; font-size: 12px; color: var(--w-dim); }
+
+/* ---------- Moon ---------- */
+.w-moon { display: flex; align-items: center; gap: 14px; }
+.moon-svg { width: 50px; height: 50px; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--w-text) 22%, transparent)); }
+.moon-dark { fill: color-mix(in srgb, var(--w-text) 12%, transparent); }
+.moon-lit { fill: var(--w-text); }
+.moon-name { font-size: 16px; }
+.moon-sub { font-size: 12px; color: var(--w-dim); margin-top: 3px; }
+
+/* ---------- Note ---------- */
+.w-notes { width: 280px; }
+.note-text {
+  width: 100%; min-height: 90px; resize: none; padding: 10px 12px;
+  font-size: 14.5px !important; line-height: 1.5; display: block;
+}
+
+/* ---------- To-do ---------- */
+.w-todo { width: 290px; }
+.todo-list { list-style: none; margin: 0 0 10px; padding: 0; max-height: 300px; overflow: auto; scrollbar-width: thin; }
+.todo-list li { display: flex; align-items: center; gap: 10px; padding: 7px 2px; font-size: 14.5px; }
+.todo-list li.done .todo-text { text-decoration: line-through; color: var(--w-dim); }
+.todo-text { flex: 1; cursor: pointer; word-break: break-word; }
+.todo-list .del { color: var(--w-dim); font-size: 18px; opacity: 0; transition: opacity .2s; }
+.todo-list li:hover .del { opacity: 1; }
+.todo-add { width: 100%; padding: 8px 12px; font-size: 14px !important; }
+.todo-clear { margin-top: 8px; font-size: 12px; color: var(--w-dim); }
+.todo-clear:hover { color: var(--w-text); }
+
+/* ---------- Focus timer ---------- */
+.w-timer { width: 220px; text-align: center; }
+.tm-body { position: relative; width: 150px; height: 150px; margin: 2px auto 10px; }
+.tm-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.tm-ring circle { fill: none; stroke-width: 4; }
+.tm-track { stroke: color-mix(in srgb, var(--w-text) 14%, transparent); }
+.tm-prog { stroke: var(--w-accent); stroke-linecap: round; transition: stroke-dashoffset .3s linear; }
+.w-timer.on-break .tm-prog { stroke: var(--w-text); }
+.tm-center { position: absolute; inset: 0; display: grid; place-content: center; }
+.tm-time { font-family: var(--w-clock-font); font-size: 36px; font-variant-numeric: tabular-nums; }
+.tm-mode { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--w-dim); margin-top: 2px; }
+.tm-controls { display: flex; justify-content: center; gap: 8px; }
+.tm-controls button {
+  min-width: 36px; height: 34px; padding: 0 12px; border-radius: 999px;
+  background: var(--w-field); color: var(--w-text); font-size: 14px;
+}
+.tm-controls .tm-main { background: var(--w-accent); color: #10131c; font-weight: 500; min-width: 84px; }
+.tm-sessions { margin-top: 8px; font-size: 11.5px; color: var(--w-dim); min-height: 14px; }
+
+/* ---------- Weather ---------- */
+.w-weather { width: 250px; min-height: 200px; }
+.w-weather.wx-msg { min-height: 0; }
+.wx-now { display: flex; align-items: center; gap: 12px; }
+.wx-ico { width: 46px; height: 46px; fill: none; stroke: var(--w-accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.wx-ico.sm { width: 22px; height: 22px; stroke: var(--w-text); }
+.wx-temp { font-family: var(--w-clock-font); font-weight: var(--w-clock-weight); font-size: 52px; line-height: 1; }
+.wx-desc { margin-top: 8px; font-size: 14px; }
+.wx-desc span { color: var(--w-dim); }
+.wx-place { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--w-dim); margin-top: 4px; }
+.wx-days { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--w-text) 12%, transparent); }
+.wx-day { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12.5px; }
+.wx-day span:first-child { color: var(--w-dim); }
+
+/* ---------- Per-scene flourishes beyond the theme variables ---------- */
+body[data-scene="rain"] .widget { image-rendering: pixelated; }
+body[data-scene="rain"] .widget .check { border-radius: 0; }
+body[data-scene="rain"] .cal-grid span, body[data-scene="rain"] .cal-grid .today { border-radius: 0; }
+body[data-scene="rain"] .tm-controls button { border-radius: 0; }
+body[data-scene="rain"] .quote-text { font-family: var(--w-font); font-style: normal; font-size: clamp(16px, 1.7vw, 24px); }
+body[data-scene="koi"] .quote-text { font-family: var(--w-font); font-style: normal; }
+body[data-scene="jelly"] .w-title, body[data-scene="jelly"] .cd-num, body[data-scene="jelly"] .wx-ico { filter: drop-shadow(0 0 6px var(--w-accent)); }
+body[data-scene="astro"] .widget.card { backdrop-filter: none; -webkit-backdrop-filter: none; }
+body[data-scene="astro"] .quote-text { font-family: var(--w-font); font-style: normal; font-weight: 400; }

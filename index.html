@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lumevale — Live Wallpaper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Pixelify+Sans:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Fredoka:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/widgets.css">
+</head>
+<body>
+  <div id="stage"></div>
+
+  <div id="fx-vignette" class="fx"></div>
+  <div id="fx-grain" class="fx"></div>
+
+  <!-- Widgets are mounted here by js/core/widgets.js -->
+  <div id="widgets"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- Scene name toast -->
+  <div id="toast"><div class="toast-name"></div><div class="toast-style"></div></div>
+
+  <!-- Arrange-widgets bar -->
+  <div id="editbar">
+    <span>Drag widgets to move · scroll over one to resize</span>
+    <button data-act="reset">Reset layout</button>
+    <button data-act="done" class="primary">Done</button>
+  </div>
+
+  <!-- Control bar -->
+  <div id="hud" class="ui">
+    <button class="hud-btn" data-act="prev" title="Previous scene (←)">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <button class="hud-scene" data-act="scenes" title="Choose scene (G)"><span class="hud-scene-name"></span></button>
+    <button class="hud-btn" data-act="next" title="Next scene (→)">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <span class="hud-sep"></span>
+    <button class="hud-btn" data-act="customize" title="Customize this scene (T)">
+      <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18c1.1 0 1.6-.8 1.6-1.6 0-.9-.7-1.4-.7-2.3 0-1 .8-1.6 1.8-1.6H17a4 4 0 004-4c0-4.7-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7.2" r="1.2"/><circle cx="15" cy="7.6" r="1.2"/></svg>
+    </button>
+    <button class="hud-btn" data-act="widgets" title="Widgets (W)">
+      <svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13.5v6M13.5 16.5h6"/></svg>
+    </button>
+    <button class="hud-btn" data-act="sound" title="Ambient sound (M)">
+      <svg class="ico-sound-on" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path d="M16 9.5a3.5 3.5 0 010 5M18.5 7a7 7 0 010 10"/></svg>
+      <svg class="ico-sound-off" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path d="M17 10l4 4M21 10l-4 4"/></svg>
+    </button>
+    <button class="hud-btn" data-act="settings" title="Settings (S)">
+      <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+    <button class="hud-btn" data-act="fullscreen" title="Fullscreen (F)">
+      <svg class="ico-fs-enter" viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
+      <svg class="ico-fs-exit" viewBox="0 0 24 24"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg>
+    </button>
+  </div>
+
+  <!-- Scene picker -->
+  <div id="picker" class="panel ui">
+    <div class="panel-head">
+      <h2>Scenes</h2>
+      <button class="panel-close" data-close title="Close (Esc)">×</button>
+    </div>
+    <div class="picker-grid"></div>
+  </div>
+
+  <!-- Customize current scene -->
+  <div id="customize" class="panel ui">
+    <div class="panel-head">
+      <h2>Customize</h2>
+      <button class="panel-close" data-close title="Close (Esc)">×</button>
+    </div>
+    <div class="panel-body"></div>
+  </div>
+
+  <!-- Widgets -->
+  <div id="widgets-panel" class="panel ui">
+    <div class="panel-head">
+      <h2>Widgets</h2>
+      <button class="panel-close" data-close title="Close (Esc)">×</button>
+    </div>
+    <div class="panel-body"></div>
+  </div>
+
+  <!-- Settings -->
+  <div id="settings" class="panel ui">
+    <div class="panel-head">
+      <h2>Settings</h2>
+      <button class="panel-close" data-close title="Close (Esc)">×</button>
+    </div>
+    <div class="panel-body"></div>
+    <div class="settings-keys">
+      <span><kbd>←</kbd><kbd>→</kbd> scenes</span>
+      <span><kbd>1</kbd>–<kbd>9</kbd> jump</span>
+      <span><kbd>T</kbd> customize</span>
+      <span><kbd>W</kbd> widgets</span>
+      <span><kbd>E</kbd> arrange</span>
+      <span><kbd>F</kbd> fullscreen</span>
+      <span><kbd>Space</kbd> pause</span>
+      <span><kbd>M</kbd> sound</span>
+      <span><kbd>H</kbd> hide UI</span>
+    </div>
+  </div>
+
+  <script src="js/core/util.js"></script>
+  <script src="js/core/settings.js"></script>
+  <script src="js/core/engine.js"></script>
+  <script src="js/core/audio.js"></script>
+  <script src="js/core/theme.js"></script>
+  <script src="js/core/widgets.js"></script>
+  <script src="js/core/ui.js"></script>
+
+  <!-- Widgets: each file registers one or more widgets -->
+  <script src="js/widgets/essentials.js"></script>
+  <script src="js/widgets/productivity.js"></script>
+  <script src="js/widgets/weather.js"></script>
+
+  <!-- Scenes: drop a new file in js/scenes/ and add a script tag here -->
+  <script src="js/scenes/rainy-window.js"></script>
+  <script src="js/scenes/koi-pond.js"></script>
+  <script src="js/scenes/jellyfish.js"></script>
+  <script src="js/scenes/astronaut.js"></script>
+  <script src="js/scenes/silk-flow.js"></script>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

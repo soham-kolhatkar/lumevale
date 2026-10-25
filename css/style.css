@@ -159,6 +159,7 @@ body.is-fullscreen .ico-fs-enter { display: none; }
 
 .panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .panel-head h2 { margin: 0; font-weight: 300; font-size: 18px; letter-spacing: 0.08em; }
+.panel-head h2 .brand-mark { width: 20px; height: 20px; margin-right: 10px; vertical-align: -3px; }
 .panel-close { font-size: 24px; line-height: 1; width: 32px; height: 32px; border-radius: 50%; color: var(--ui-dim); }
 .panel-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--ui-text); }
 
